@@ -20,6 +20,7 @@ public class GameManager : MonoBehaviour
     public void RestartGame()
     {
         gameOverUI.SetActive(false);
+        ScoreManager.instance.ResetScore();
 
         //Time.timeScale = 1f;
 

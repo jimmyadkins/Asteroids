@@ -4,9 +4,10 @@ using UnityEngine;
 
 public class AsteroidSpawner : MonoBehaviour
 {
-    public GameObject[] asteroidPrefabs;  
-    public float spawnRadius = 200f;       
-    public int asteroidCount = 10;        
+    public GameObject[] asteroidPrefabs;
+    public float spawnRadius = 200f;
+    public int initialAsteroidCount = 10;  // Number of asteroids to spawn at start
+    public float spawnInterval = 5f;       // Time interval between spawns in seconds
     public Camera mainCamera;
 
     // Speeds for different asteroid sizes
@@ -21,56 +22,74 @@ public class AsteroidSpawner : MonoBehaviour
 
     void Start()
     {
-        SpawnAsteroids();
+        SpawnInitialAsteroids();
+        StartCoroutine(SpawnAsteroidsContinuously());
     }
 
-    void SpawnAsteroids()
+    void SpawnInitialAsteroids()
     {
-        for (int i = 0; i < asteroidCount; i++)
+        for (int i = 0; i < initialAsteroidCount; i++)
         {
-            // Pick a random asteroid prefab
-            int randomIndex = Random.Range(0, asteroidPrefabs.Length);
-            GameObject asteroid = Instantiate(asteroidPrefabs[randomIndex]);
-
-            Vector3 spawnPosition = GetSpawnPositionOutsideScreen();
-            asteroid.transform.position = spawnPosition;
-
-            // Determine the asteroid size (Large, Medium, Small)
-            float randomSize = Random.Range(0f, 1f);
-            float asteroidScale = 1f;
-            float asteroidSpeed = 0f;
-            float asteroidMass = 0f;
-
-            // Assign size, speed, and mass based on random selection
-            if (randomSize < 0.33f)  // Large asteroid
-            {
-                asteroidScale = 1f;  
-                asteroidSpeed = largeAsteroidSpeed;
-                asteroidMass = largeAsteroidMass;
-            }
-            else if (randomSize < 0.66f)  // Medium asteroid
-            {
-                asteroidScale = 0.5f;  
-                asteroidSpeed = mediumAsteroidSpeed;
-                asteroidMass = mediumAsteroidMass;
-            }
-            else  // Small asteroid
-            {
-                asteroidScale = 0.25f;  
-                asteroidSpeed = smallAsteroidSpeed;
-                asteroidMass = smallAsteroidMass;
-            }
-
-            asteroid.transform.localScale *= asteroidScale;
-
-            Rigidbody rb = asteroid.GetComponent<Rigidbody>();
-            rb.mass = asteroidMass;
-
-            Vector3 targetPosition = GetRandomPositionInScreenSpace();
-            Vector3 directionToCenter = (targetPosition - spawnPosition).normalized;
-
-            rb.velocity = directionToCenter * asteroidSpeed;
+            SpawnAsteroid();
         }
+    }
+
+    IEnumerator SpawnAsteroidsContinuously()
+    {
+        while (true)
+        {
+            SpawnAsteroid();
+            yield return new WaitForSeconds(spawnInterval);  // Wait for the next spawn
+        }
+    }
+
+    void SpawnAsteroid()
+    {
+        // Pick a random asteroid prefab
+        int randomIndex = Random.Range(0, asteroidPrefabs.Length);
+        GameObject asteroid = Instantiate(asteroidPrefabs[randomIndex]);
+
+        Vector3 spawnPosition = GetSpawnPositionOutsideScreen();
+        asteroid.transform.position = spawnPosition;
+
+        // Determine the asteroid size (Large, Medium, Small)
+        float randomSize = Random.Range(0f, 1f);
+        float asteroidScale = 1f;
+        float asteroidSpeed = 0f;
+        float asteroidMass = 0f;
+
+        // Assign size, speed, and mass based on random selection
+        if (randomSize < 0.33f)  // Large asteroid
+        {
+            asteroidScale = 1f;
+            asteroidSpeed = largeAsteroidSpeed;
+            asteroidMass = largeAsteroidMass;
+            asteroid.GetComponent<Asteroid>().asteroidSize = Asteroid.AsteroidSize.Large;
+        }
+        else if (randomSize < 0.66f)  // Medium asteroid
+        {
+            asteroidScale = 0.5f;
+            asteroidSpeed = mediumAsteroidSpeed;
+            asteroidMass = mediumAsteroidMass;
+            asteroid.GetComponent<Asteroid>().asteroidSize = Asteroid.AsteroidSize.Medium;
+        }
+        else  // Small asteroid
+        {
+            asteroidScale = 0.25f;
+            asteroidSpeed = smallAsteroidSpeed;
+            asteroidMass = smallAsteroidMass;
+            asteroid.GetComponent<Asteroid>().asteroidSize = Asteroid.AsteroidSize.Small;
+        }
+
+        asteroid.transform.localScale *= asteroidScale;
+
+        Rigidbody rb = asteroid.GetComponent<Rigidbody>();
+        rb.mass = asteroidMass;
+
+        Vector3 targetPosition = GetRandomPositionInScreenSpace();
+        Vector3 directionToCenter = (targetPosition - spawnPosition).normalized;
+
+        rb.velocity = directionToCenter * asteroidSpeed;
     }
 
     Vector3 GetSpawnPositionOutsideScreen()
