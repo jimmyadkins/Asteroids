@@ -5,7 +5,8 @@ using UnityEngine.SceneManagement; // For loading scenes like the main menu
 public class PauseMenu : MonoBehaviour
 {
     public GameObject pauseMenuUI;  // Assign the Pause Menu Canvas in the Inspector
-    private bool isPaused = false;
+
+    public static bool isPaused = false;
 
     void Start()
     {

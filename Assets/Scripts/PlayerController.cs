@@ -32,11 +32,11 @@ public class PlayerController : MonoBehaviour
     {
         isThrusting = value.isPressed;
 
-        if (isThrusting)
+        if (isThrusting && !PauseMenu.isPaused)
         {
             thrustMesh.SetActive(true);  // Show the thrust mesh
         }
-        else
+        else if (!PauseMenu.isPaused)
         {
             thrustMesh.SetActive(false);  // Hide the thrust mesh
         }

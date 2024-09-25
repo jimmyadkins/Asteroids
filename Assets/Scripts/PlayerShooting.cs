@@ -48,7 +48,7 @@ public class PlayerShooting : MonoBehaviour
         RegenerateAmmo();
         ammoSlider.value = currentAmmo;
         // Check if we're firing and if enough time has passed to shoot again
-        if (isFiring && Time.time >= nextFireTime && currentAmmo > 0)
+        if (isFiring && Time.time >= nextFireTime && currentAmmo > 0 && !PauseMenu.isPaused)
         {
             Shoot();
             nextFireTime = Time.time + fireRate;
